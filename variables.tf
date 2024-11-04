@@ -1,6 +1,6 @@
 variable "project_name" {
   type    = string
-  default = "SQL-server"
+  default = "Ticket-server"
 }
 
 

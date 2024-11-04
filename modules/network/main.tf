@@ -21,9 +21,7 @@ resource "aws_internet_gateway" "igw" {
   }
 }
 
-
-# Creating Public Subnet
-resource "aws_subnet" "public_subnet" {
+resource "aws_subnet" "public_subnets" {
   count                   = length(var.public_subnet_cidr_blocks)
   vpc_id                  = aws_vpc.vpc.id
   cidr_block              = var.public_subnet_cidr_blocks[count.index]
@@ -34,10 +32,6 @@ resource "aws_subnet" "public_subnet" {
     Name = "${var.naming_prefix}-public-subnet-${count.index}"
   }
 }
-
-
-
-
 
 # Route Table
 resource "aws_route_table" "rtb" {
@@ -53,16 +47,21 @@ resource "aws_route_table" "rtb" {
   }
 }
 
-# Associate Public Subnet with Route Table
-resource "aws_route_table_association" "public_subnet_association" {
-  subnet_id      = aws_subnet.public_subnet[0].id 
+# Associate Public Subnet 1 with Route Table
+resource "aws_route_table_association" "public_subnet_association_1" {
+  subnet_id      = aws_subnet.public_subnets[0].id  
+  route_table_id = aws_route_table.rtb.id
+}
+
+# Associate Public Subnet 2 with Route Table
+resource "aws_route_table_association" "public_subnet_association_2" {
+  subnet_id      = aws_subnet.public_subnets[1].id  
   route_table_id = aws_route_table.rtb.id
 }
 
 resource "aws_security_group" "ec2_sg" {
   name   = "${var.naming_prefix}-ec2-sg"
   vpc_id = aws_vpc.vpc.id
-
 
   ingress {
     from_port = 0
@@ -72,15 +71,6 @@ resource "aws_security_group" "ec2_sg" {
     cidr_blocks = ["20.223.228.255/32"]
     self        = true # allow access from the same security group
   }
-
-  ingress {
-    from_port   = 3389
-    to_port     = 3389
-    protocol    = "tcp"
-    cidr_blocks = ["20.223.228.255/32"]
-  }
-
-
   # outbound internet access
   egress {
     from_port   = 0

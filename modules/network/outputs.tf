@@ -1,8 +1,13 @@
-# Public outputs
+
+
 output "public_subnet_id" {
-  value = aws_subnet.public_subnet[0].id
+  value = aws_subnet.public_subnets[*].id
 }
 
+# # private outputs
+# output "private_subnet_ids" {
+#   value = aws_subnet.private_subnet[*].id
+# }
 
 # sg
 output "ec2_security_group_id" {
